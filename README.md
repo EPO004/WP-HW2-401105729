@@ -1,70 +1,195 @@
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# اپلیکیشن طراحی
 
-## Available Scripts
+این یک اپلیکیشن طراحی مبتنی بر وب است که به کاربران این امکان را می‌دهد که اشکال را به راحتی بر روی canvas بکشند، آنها را حذف کنند و طراحی‌های خود را Export یا Import کنند. این اپلیکیشن با استفاده از **React** ساخته شده و از **CSS** برای طراحی استفاده می‌کند. کاربران می‌توانند اشکال مختلف (مربع، دایره، مثلث) را از Sidebar انتخاب کرده و آنها را بر روی canvas قرار دهند. همچنین، اپلیکیشن قابلیت ذخیره کردن طراحی‌ها به صورت فایل JSON و بارگذاری طراحی‌های قبلی را دارد.
 
-In the project directory, you can run:
+## ویژگی‌ها
 
-### `npm start`
+- **ویژگی Drag and Drop**: کاربران می‌توانند اشکال را از نوار ابزار بکشند و بر روی canvas قرار دهند.
+- **شمارش اشکال**: تعداد هر نوع از اشکال قرار داده شده بر روی canvas نمایش داده می‌شود.
+- **حذف اشکال**: کاربران می‌توانند هر شکل را با دوبار کلیک کردن بر روی آن حذف کنند.
+- **قابلیت Export/Import**: کاربران می‌توانند طراحی‌های خود را به عنوان یک فایل JSON ذخیره کنند و طراحی‌های ذخیره شده قبلی را بارگذاری کنند.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## ساختار پروژه
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+پروژه با نمای کلی، به صورت زیر دسته بندی شده است:
 
-### `npm test`
+```
+src/
+  components/
+    Canvas.js          
+    Header.js          
+    ShapeCounter.js    
+    Sidebar.js         
+  App.js               
+  App.css              
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## توضیحات کامپوننت‌ها
 
-### `npm run build`
+### 1.فایل **Canvas.js**
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+کامپوننت `Canvas` ناحیه‌ای است که کاربران می‌توانند اشکال را بر روی آن قرار دهند. این کامپوننت مسئولیت قرار دادن اشکال بر روی canvas و جلوگیری از خروج آنها از محدوده canvas را دارد.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- تابع **handleDrop**: این تابع هنگام رها کردن یک شکل اجرا می‌شود. موقعیت قرار گرفتن شکل محاسبه شده و از خارج شدن آن از محدوده canvas جلوگیری می‌شود.
+- تابع **onDropShape**: این تابع از طرف کامپوننت والد (`App`) به کامپوننت `Canvas` ارسال شده و با فراخوانی آن، وضعیت اشکال به روزرسانی می‌شود.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```jsx
+const handleDrop = (e) => {
+  e.preventDefault();
+  const shape = e.dataTransfer.getData("shape");
+  const rect = e.target.getBoundingClientRect();
+  let x = e.clientX - rect.left;
+  let y = e.clientY - rect.top;
 
-### `npm run eject`
+  const shapeSize = 50;
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+  x = Math.max(0, Math.min(x, rect.width - shapeSize));
+  y = Math.max(0, Math.min(y, rect.height - shapeSize));
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+  onDropShape(shape, x, y);
+};
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### 2.فایل **Header.js**
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+کامپوننت `Header` شامل هدر برنامه است که دو دکمه برای صادر کردن و وارد کردن اشکال دارد.
 
-## Learn More
+- توضیح **onExport**: اشکال موجود را به یک فایل `.json` صادر می‌کند.
+- توضیح **onImport**: اشکال را از یک فایل `.json` وارد می‌کند.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```jsx
+<button onClick={onExport}>Export</button>
+<button onClick={onImport}>Import</button>
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### 3.فایل **ShapeCounter.js**
 
-### Code Splitting
+کامپوننت `ShapeCounter` تعداد اشکال مختلفی که روی canvas قرار گرفته‌اند را نشان می‌دهد. این کامپوننت از آیکون‌های SVG برای نمایش انواع اشکال (مربع، دایره، مثلث) استفاده می‌کند.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```jsx
+const counts = shapes.reduce((acc, shape) => {
+  acc[shape.type] = (acc[shape.type] || 0) + 1;
+  return acc;
+}, {});
 
-### Analyzing the Bundle Size
+return (
+  <div className="shape-counter">
+    {Object.entries(counts).map(([type, count]) => (
+      <div key={type}>
+        {type === 'Square' && <SquareIcon />}
+        {type === 'Circle' && <CircleIcon />}
+        {type === 'Triangle' && <TriangleIcon />}
+        {count}
+      </div>
+    ))}
+  </div>
+);
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### 4.فایل **Sidebar.js**
 
-### Making a Progressive Web App
+کامپوننت `Sidebar` نوار ابزاری است که شامل اشکال قابل کشیدن است. هر زمان که یک شکل کشیده می‌شود، تابع `onSelect` از والد (کامپوننت `App`) فراخوانی می‌شود تا نشان دهد کدام شکل برای کشیدن انتخاب شده است.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```jsx
+{shapes.map((shape) => (
+  <div
+    key={shape.type}
+    draggable
+    onDragStart={(e) => {
+      e.dataTransfer.setData("shape", shape.type);
+      onSelect(shape.type);
+    }}
+  >
+    {shape.icon}
+  </div>
+))}
+```
 
-### Advanced Configuration
+### 5.فایل **App.js**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+کامپوننت `App` ریشه‌ی اپلیکیشن است که وضعیت برنامه را مدیریت می‌کند. این کامپوننت شامل توابع مختلف برای انتخاب شکل، قرار دادن شکل بر روی canvas، حذف شکل و صادر کردن و وارد کردن اشکال است.
 
-### Deployment
+- توضیح **handleSelect**: شکل انتخاب شده توسط کاربر برای کشیدن را تنظیم می‌کند.
+- توضیح **handleDropShape**: شکل رها شده را به وضعیت `shapes` اضافه می‌کند.
+- توضیح **handleDeleteShape**: یک شکل را از canvas حذف می‌کند.
+- توضیح **handleExport**: اشکال را به صورت یک فایل `json.` صادر می‌کند.
+- توضیح **handleImport**: اشکال را از یک فایل `json.` وارد می‌کند.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+```jsx
+const handleExport = () => {
+  const data = JSON.stringify(shapes);
+  const blob = new Blob([data], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'drawing.json';
+  a.click();
+};
 
-### `npm run build` fails to minify
+const handleImport = () => {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = e => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      setShapes(JSON.parse(reader.result));
+    };
+    reader.readAsText(e.target.files[0]);
+  };
+  input.click();
+};
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## طراحی App.css
+
+اجزای اصلی شامل:
+
+- بخش **Canvas**: در canvas که با یک پس‌زمینه سفید و سایه طراحی شده است.
+- بخش **Sidebar**: نوار ابزاری که اشکال قابل کشیدن را شامل می‌شود و افکت‌های هاور برای تعامل بیشتر با کاربر دارد.
+- بخش **Shape Counter**: تعداد اشکال را در یک طرح تمیز و مرتب نمایش می‌دهد.
+
+```css
+.canvas {
+  width: 600px;
+  height: 400px;
+  border: 2px solid #000;
+  background-color: #ffffff;
+  position: relative;
+  cursor: crosshair;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+```
+
+### واکنش‌گرایی موبایل
+
+این اپلیکیشن دارای طراحی ریسپانسیو است. در صفحات کوچکتر از 768px، طرح به صورت ستونی نمایش داده می‌شود تا تجربه کاربری بهتری در دستگاه‌های موبایل فراهم شود.
+
+```css
+@media (max-width: 768px) {
+  .main-content {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .sidebar {
+    width: 100%;
+  }
+
+  .canvas {
+    width: 90%;
+  }
+
+  .main-content > div {
+    border-right: none;
+  }
+}
+```
+
+## موارد استفاده از هوش مصنوعی
+
+برای محتوای فایل App.css، برای محتوای بخش های مختلف کامپوننت ها کمک گرفته شده تا بهتر و راحت تر بتوان خروجی را با طراحی بهتر نمایش داد. برتری استفاده از هوش مصنوعی نسبت به سرچ در گوگل این است که زودتر و کاملتر می توان به خواسته خود برسیم.
